@@ -23,11 +23,8 @@
 
 namespace TASoft\Macro;
 
-class SimpleMacro extends AbstractMacro
+class SimpleRecursiveMacro extends AbstractRecursiveMacro
 {
-	/** @var null|string|callable */
-	private $symbolNotFound;
-
 	/**
 	 * @param array $substitutions
 	 */
@@ -38,22 +35,5 @@ class SimpleMacro extends AbstractMacro
 				$this->setSubstitution($key, $substitution);
 			}
 		}
-	}
-
-	public function setSymbolNotFound($symbolNotFound): SimpleMacro
-	{
-		$this->symbolNotFound = $symbolNotFound;
-		return $this;
-	}
-
-	protected function symbolNodFoundMacro($expression, $symbol): string
-	{
-		if(is_string($this->symbolNotFound))
-			return $this->symbolNotFound;
-
-		if(is_callable($this->symbolNotFound))
-			return($this->symbolNotFound)($expression, $symbol);
-
-		return parent::symbolNodFoundMacro($expression, $symbol);
 	}
 }

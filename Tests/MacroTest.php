@@ -22,20 +22,37 @@
  */
 
 use PHPUnit\Framework\TestCase;
+use TASoft\Macro\SimpleMacro;
+use TASoft\Macro\SimpleRecursiveMacro;
 
 class MacroTest extends TestCase
 {
 	public function testSimpleStringMakro() {
-		$mk = new SimpleMakro([
+		$mk = new SimpleMacro([
 			'TEST' => 23,
 			'HALLO' => 'Welt!'
 		]);
 
-		$this->assertEquals("Das ist 23. Meine Welt!", $mk->makroString("Das ist $(TEST). Meine $(HALLO)"));
+		$this->assertEquals("Das ist 23. Meine Welt!", $mk->macroString("Das ist $(TEST). Meine $(HALLO)"));
 
-		$this->assertEquals("Heio $(NICHT).", $mk->makroString("Heio $(NICHT)."));
+		$this->assertEquals("Heio $(NICHT).", $mk->macroString("Heio $(NICHT)."));
+		$this->assertEquals("Heio $(unkonf. name è).", $mk->macroString("Heio $(unkonf. name è)."));
 
-		$this->assertEquals("Heio $(unkonf. name è).", $mk->makroString("Heio $(unkonf. name è)."));
+		$mk->setSymbolNotFound("Nö");
+
+		$this->assertEquals("Heio Nö.", $mk->macroString("Heio $(NICHT)."));
+		$this->assertEquals("Heio $(unkonf. name è).", $mk->macroString("Heio $(unkonf. name è)."));
+
+		$mk->setSymbolNotFound(function($e, $s) {
+			return "NEIN($s)";
+		});
+
+		$this->assertEquals("Heio NEIN(NICHT).", $mk->macroString("Heio $(NICHT)."));
+		$this->assertEquals("Heio $(unkonf. name è).", $mk->macroString("Heio $(unkonf. name è)."));
+
+		$mk->setSymbolNotFound(NULL);
+		$this->assertEquals("Heio $(NICHT).", $mk->macroString("Heio $(NICHT)."));
+		$this->assertEquals("Heio $(unkonf. name è).", $mk->macroString("Heio $(unkonf. name è)."));
 	}
 
 	public function testRecursiveStringMakro() {
@@ -47,7 +64,9 @@ class MacroTest extends TestCase
 			'PROBLEM' => ' jaja so $(TEST_5)'
 		]);
 
-		$this->assertEquals("Jetzt: Hier kommt Thomas mit sonst noch $(TEST_4)", $mk->makroString("Jetzt: $(TEST_1)"));
-		$this->assertEquals("", $mk->makroString("Problem: $(TEST_5)"));
+		$this->assertEquals("Jetzt: Hier kommt Thomas mit sonst noch $(TEST_4)", $mk->macroString("Jetzt: $(TEST_1)"));
+
+		$this->expectException(\TASoft\Macro\Exception\CircularSubstitutionException::class);
+		$this->assertEquals("", $mk->macroString("Problem: $(TEST_5)"));
 	}
 }

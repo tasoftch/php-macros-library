@@ -21,39 +21,30 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro;
+namespace TASoft\Macro\Exception;
 
-class SimpleMacro extends AbstractMacro
+use TASoft\Macro\Exception\MacroException;
+
+class CircularSubstitutionException extends MacroException
 {
-	/** @var null|string|callable */
-	private $symbolNotFound;
+	private $substitution;
 
 	/**
-	 * @param array $substitutions
+	 * @return mixed
 	 */
-	public function __construct(array $substitutions = [])
+	public function getSubstitution()
 	{
-		foreach($substitutions as $key => $substitution) {
-			if(is_string($key)) {
-				$this->setSubstitution($key, $substitution);
-			}
-		}
+		return $this->substitution;
 	}
 
-	public function setSymbolNotFound($symbolNotFound): SimpleMacro
+	/**
+	 * @param mixed $substitution
+	 * @return CircularSubstitutionException
+	 */
+	public function setSubstitution($substitution)
 	{
-		$this->symbolNotFound = $symbolNotFound;
+		$this->substitution = $substitution;
 		return $this;
 	}
 
-	protected function symbolNodFoundMacro($expression, $symbol): string
-	{
-		if(is_string($this->symbolNotFound))
-			return $this->symbolNotFound;
-
-		if(is_callable($this->symbolNotFound))
-			return($this->symbolNotFound)($expression, $symbol);
-
-		return parent::symbolNodFoundMacro($expression, $symbol);
-	}
 }
