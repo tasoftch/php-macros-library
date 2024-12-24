@@ -23,8 +23,12 @@
 
 namespace TASoft\Macro;
 
+use TASoft\Macro\Utility\MacroUndefinedSymbolHandlerTrait;
+
 class SimpleRecursiveMacro extends AbstractRecursiveMacro
 {
+	use MacroUndefinedSymbolHandlerTrait;
+
 	/**
 	 * @param array $substitutions
 	 */

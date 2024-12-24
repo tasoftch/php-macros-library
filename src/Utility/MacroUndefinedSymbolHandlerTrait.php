@@ -21,28 +21,27 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro;
+namespace TASoft\Macro\Utility;
 
-use TASoft\Macro\Utility\MacroUndefinedSymbolHandlerTrait;
-
-class SimpleMacro extends AbstractMacro
+trait MacroUndefinedSymbolHandlerTrait
 {
-	use MacroUndefinedSymbolHandlerTrait;
+	/** @var null|string|callable */
+	private $symbolNotFound;
 
-	/**
-	 * @param array $substitutions
-	 */
-	public function __construct(array $substitutions = [])
+	public function setSymbolNotFound($symbolNotFound)
 	{
-		foreach($substitutions as $key => $substitution) {
-			if(is_string($key)) {
-				$this->setSubstitution($key, $substitution);
-			}
-		}
+		$this->symbolNotFound = $symbolNotFound;
+		return $this;
 	}
 
-	public function __invoke($string, $context=NULL)
+	protected function symbolNodFoundMacro($expression, $symbol): string
 	{
-		return $this->macroString($string, $context);
+		if(is_string($this->symbolNotFound))
+			return $this->symbolNotFound;
+
+		if(is_callable($this->symbolNotFound))
+			return($this->symbolNotFound)($expression, $symbol);
+
+		return parent::symbolNodFoundMacro($expression, $symbol);
 	}
 }
