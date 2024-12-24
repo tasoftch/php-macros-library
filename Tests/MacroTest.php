@@ -24,6 +24,7 @@
 use PHPUnit\Framework\TestCase;
 use TASoft\Macro\SimpleMacro;
 use TASoft\Macro\SimpleRecursiveMacro;
+use TASoft\Macro\Subs\StaticSubstitution;
 
 class MacroTest extends TestCase
 {
@@ -53,6 +54,8 @@ class MacroTest extends TestCase
 		$mk->setSymbolNotFound(NULL);
 		$this->assertEquals("Heio $(NICHT).", $mk->macroString("Heio $(NICHT)."));
 		$this->assertEquals("Heio $(unkonf. name è).", $mk->macroString("Heio $(unkonf. name è)."));
+
+		$this->assertEquals("Das ist 23. Meine Welt!", $mk("Das ist $(TEST). Meine $(HALLO)"));
 	}
 
 	public function testRecursiveStringMakro() {
@@ -68,5 +71,22 @@ class MacroTest extends TestCase
 
 		$this->expectException(\TASoft\Macro\Exception\CircularSubstitutionException::class);
 		$this->assertEquals("", $mk->macroString("Problem: $(TEST_5)"));
+	}
+
+	public function testStaticSubstitutionMacro() {
+		$mk = new SimpleMacro([
+			"USER" => $subs = new StaticSubstitution("Thomas")
+		]);
+
+		$mk->setSubstitution("NAME", new StaticSubstitution("Abplanalp"));
+		$mk->setSubstitution("EMAIL", 'info@tasoft.ch');
+
+		$this->assertEquals("User: Thomas", $mk->macroString("User: $(USER)"));
+		$this->assertEquals("Name: Abplanalp", $mk->macroString("Name: $(NAME)"));
+		$this->assertEquals("Email: info@tasoft.ch", $mk->macroString("Email: $(EMAIL)"));
+
+		$subs->setValue("Daniela");
+
+		$this->assertEquals("User: Daniela", $mk->macroString("User: $(USER)"));
 	}
 }

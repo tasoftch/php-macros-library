@@ -21,24 +21,39 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro;
+namespace TASoft\Macro\Subs;
 
-class SimpleRecursiveMacro extends AbstractRecursiveMacro
+class StaticSubstitution implements SubstitutionInterface
 {
+	/** @var scalar */
+	private $value;
+
 	/**
-	 * @param array $substitutions
+	 * @param bool|float|int|string $value
 	 */
-	public function __construct(array $substitutions = [])
+	public function __construct(float|bool|int|string $value)
 	{
-		foreach($substitutions as $key => $substitution) {
-			if(is_string($key)) {
-				$this->setSubstitution($key, $substitution);
-			}
-		}
+		$this->value = $value;
 	}
 
-	public function __invoke($string, $context)
+	public function getValue(): float|bool|int|string|null
 	{
-		return $this->macroString($string, $context);
+		return $this->value;
+	}
+
+	public function setValue(float|bool|int|string $value = NULL): StaticSubstitution
+	{
+		$this->value = $value;
+		return $this;
+	}
+
+	public function toString($options = NULL): ?string
+	{
+		return $this->value;
+	}
+
+	public function __toString(): string
+	{
+		return (string) $this->toString();
 	}
 }

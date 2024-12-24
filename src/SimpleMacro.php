@@ -56,4 +56,9 @@ class SimpleMacro extends AbstractMacro
 
 		return parent::symbolNodFoundMacro($expression, $symbol);
 	}
+
+	public function __invoke($string, $context=NULL)
+	{
+		return $this->macroString($string, $context);
+	}
 }

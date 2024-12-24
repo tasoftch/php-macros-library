@@ -25,7 +25,7 @@ namespace TASoft\Macro\Subs;
 
 interface SubstitutionInterface
 {
-	public function toString($options = NULL): string;
+	public function toString($options = NULL): ?string;
 
 	/**
 	 * @return string
