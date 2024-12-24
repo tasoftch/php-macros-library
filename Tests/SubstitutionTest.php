@@ -21,34 +21,42 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Subs;
+use PHPUnit\Framework\TestCase;
+use TASoft\Macro\Subs\CallbackSubstitution;
+use TASoft\Macro\Subs\LocalIP;
+use TASoft\Macro\Subs\StaticSubstitution;
+use TASoft\Macro\Subs\UserName;
 
-class StaticSubstitution extends AbstractConstantSubstitution implements SubstitutionInterface
+class SubstitutionTest extends TestCase
 {
-	/** @var scalar */
-	private $value;
+	public function testStaticSubstitution() {
+		$subs = new StaticSubstitution();
 
-	/**
-	 * @param bool|float|int|string $value
-	 */
-	public function __construct(float|bool|int|string $value = NULL)
-	{
-		$this->value = $value;
+		$this->assertNull($subs->toString());
+		$this->assertEquals("", (string) $subs);
+
+		$subs->setValue("Thomas");
+
+		$this->assertEquals("Thomas", $subs);
 	}
 
-	public function getValue(): float|bool|int|string|null
-	{
-		return $this->value;
+	public function testCallbackSubstitution() {
+		$subs = new CallbackSubstitution(function($options) use (&$val, &$opts) {
+			$opts = $options;
+			return $val;
+		});
+
+		$val = 78;
+		$this->assertEquals("78", $subs);
+
+		$val = 'Test';
+		$this->assertEquals("Test", $subs->toString('Hehe'));
+		$this->assertEquals("Hehe", $opts);
 	}
 
-	public function setValue(float|bool|int|string $value): StaticSubstitution
-	{
-		$this->value = $value;
-		return $this;
-	}
+	public function testConstantSubstitutions() {
+		$this->assertEquals("thomas", new UserName());
+		$this->assertEquals("192.168.86.170", (string) new LocalIP());
 
-	public function toString($options = NULL): ?string
-	{
-		return $this->value;
 	}
 }

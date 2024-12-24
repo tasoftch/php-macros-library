@@ -23,32 +23,12 @@
 
 namespace TASoft\Macro\Subs;
 
-class StaticSubstitution extends AbstractConstantSubstitution implements SubstitutionInterface
+abstract class AbstractConstantSubstitution implements SubstitutionInterface
 {
-	/** @var scalar */
-	private $value;
-
-	/**
-	 * @param bool|float|int|string $value
-	 */
-	public function __construct(float|bool|int|string $value = NULL)
+	public function __toString(): string
 	{
-		$this->value = $value;
+		return (string) $this->toString();
 	}
 
-	public function getValue(): float|bool|int|string|null
-	{
-		return $this->value;
-	}
 
-	public function setValue(float|bool|int|string $value): StaticSubstitution
-	{
-		$this->value = $value;
-		return $this;
-	}
-
-	public function toString($options = NULL): ?string
-	{
-		return $this->value;
-	}
 }

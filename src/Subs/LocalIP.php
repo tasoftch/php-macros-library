@@ -23,32 +23,48 @@
 
 namespace TASoft\Macro\Subs;
 
-class StaticSubstitution extends AbstractConstantSubstitution implements SubstitutionInterface
+use TASoft\Macro\Subs\AbstractConstantSubstitution;
+
+class LocalIP extends AbstractConstantSubstitution
 {
-	/** @var scalar */
-	private $value;
-
-	/**
-	 * @param bool|float|int|string $value
-	 */
-	public function __construct(float|bool|int|string $value = NULL)
-	{
-		$this->value = $value;
-	}
-
-	public function getValue(): float|bool|int|string|null
-	{
-		return $this->value;
-	}
-
-	public function setValue(float|bool|int|string $value): StaticSubstitution
-	{
-		$this->value = $value;
-		return $this;
-	}
 
 	public function toString($options = NULL): ?string
 	{
-		return $this->value;
+		$localIP = null;
+
+		if (function_exists('shell_exec')) {
+			if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
+				$output = shell_exec('ipconfig');
+				if ($output) {
+					preg_match('/IPv4-Adresse.*?:\s*([\d\.]+)/', $output, $matches);
+					$localIP = $matches[1] ?? null;
+				}
+			} else {
+				$output = shell_exec('ifconfig 2>/dev/null') ?: shell_exec('ip addr 2>/dev/null');
+				if ($output) {
+					preg_match_all('/inet\s([\d\.]+).*?broadcast|inet\s([\d\.]+)/', $output, $matches);
+					foreach($matches[1] as $ip) {
+						if($ip) {
+							$localIP = $ip;
+							break;
+						}
+					}
+
+					if(!$localIP) {
+						foreach($matches[2] as $ip) {
+							if($ip) {
+								$localIP = $ip;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (!$localIP && isset($_SERVER['SERVER_ADDR'])) {
+			$localIP = $_SERVER['SERVER_ADDR'];
+		}
+		return $localIP ?: "0.0.0.0";
 	}
 }
