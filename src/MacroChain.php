@@ -21,44 +21,13 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Utility;
+namespace TASoft\Macro;
 
-use TASoft\Macro\Subs\SubstitutionInterface;
-
-trait MacroSubstitutionContainerTrait
+class MacroChain extends AbstractMacroChain
 {
-	protected $substitutions = [];
-
 	public function setSubstitution(string $name, $value)
 	{
-		if(array_key_exists($name, $this->substitutions))
-			trigger_error("Substitution $name already exists", E_USER_WARNING);
-		$this->substitutions[$name] = $value;
+		trigger_error("setSubstitution is not available in chains", E_USER_WARNING);
 		return $this;
-	}
-
-	/**
-	 * Returns the substitution for a name.
-	 *
-	 * @param string $name
-	 * @return string|int|float|bool|null|SubstitutionInterface
-	 */
-	public function getSubstitution(string $name) {
-		return $this->substitutions[$name] ?? NULL;
-	}
-
-	/**
-	 * Returns a ready string
-	 *
-	 * @param string $name
-	 * @param $context
-	 * @return string|null
-	 */
-	public function getSubstitutionString(string $name, $context = NULL): ?string
-	{
-		$value = $this->getSubstitution($name);
-		if($value instanceof SubstitutionInterface)
-			$value = $value->toString($context);
-		return $value;
 	}
 }

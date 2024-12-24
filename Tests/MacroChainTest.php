@@ -21,44 +21,28 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Utility;
+use PHPUnit\Framework\TestCase;
+use TASoft\Macro\FormattedMacro;
+use TASoft\Macro\Formatter\PrintFormatter;
+use TASoft\Macro\MacroChain;
+use TASoft\Macro\SimpleRecursiveMacro;
 
-use TASoft\Macro\Subs\SubstitutionInterface;
-
-trait MacroSubstitutionContainerTrait
+class MacroChainTest extends TestCase
 {
-	protected $substitutions = [];
+	public function testChain() {
+		$mk = new MacroChain();
+		$mk->addMacro( (new FormattedMacro([
+			'PI' => M_PI
+		]))
+			->setFormatter(new PrintFormatter("%.2f"), 'PI')
+			, 'fmt' );
+		$mk->addMacro(
+			(new SimpleRecursiveMacro())
+				->setSubstitution('TEST_1', 'Hallo $(TEST_2)')
+				->setSubstitution("TEST_2", 'JAJA $(TEST_3)')
+			, 'rec');
 
-	public function setSubstitution(string $name, $value)
-	{
-		if(array_key_exists($name, $this->substitutions))
-			trigger_error("Substitution $name already exists", E_USER_WARNING);
-		$this->substitutions[$name] = $value;
-		return $this;
-	}
-
-	/**
-	 * Returns the substitution for a name.
-	 *
-	 * @param string $name
-	 * @return string|int|float|bool|null|SubstitutionInterface
-	 */
-	public function getSubstitution(string $name) {
-		return $this->substitutions[$name] ?? NULL;
-	}
-
-	/**
-	 * Returns a ready string
-	 *
-	 * @param string $name
-	 * @param $context
-	 * @return string|null
-	 */
-	public function getSubstitutionString(string $name, $context = NULL): ?string
-	{
-		$value = $this->getSubstitution($name);
-		if($value instanceof SubstitutionInterface)
-			$value = $value->toString($context);
-		return $value;
+		$this->assertEquals("Mein 3.14", $mk("Mein $(PI)"));
+		$this->assertEquals("Hallo JAJA $(TEST_3)", $mk("$(TEST_1)"));
 	}
 }

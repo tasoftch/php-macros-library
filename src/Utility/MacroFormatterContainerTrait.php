@@ -32,11 +32,13 @@ trait MacroFormatterContainerTrait
 	public function setFormatter(FormatterInterface $formatter, $name)
 	{
 		$this->formatters[$name] = $formatter;
+		return $this;
 	}
 
 	public function setFormatters(FormatterInterface $formatter, array $names) {
 		foreach($names as $name)
 			$this->setFormatter($formatter, $name);
+		return $this;
 	}
 
 	/**

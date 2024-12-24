@@ -21,44 +21,44 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Utility;
+namespace TASoft\Macro;
 
-use TASoft\Macro\Subs\SubstitutionInterface;
-
-trait MacroSubstitutionContainerTrait
+abstract class AbstractMacroChain implements MacroInterface
 {
-	protected $substitutions = [];
+	private $macros = [];
 
-	public function setSubstitution(string $name, $value)
-	{
-		if(array_key_exists($name, $this->substitutions))
-			trigger_error("Substitution $name already exists", E_USER_WARNING);
-		$this->substitutions[$name] = $value;
+	public function addMacro(MacroInterface $macro, string $name) {
+		$this->macros[$name] = $macro;
 		return $this;
 	}
 
-	/**
-	 * Returns the substitution for a name.
-	 *
-	 * @param string $name
-	 * @return string|int|float|bool|null|SubstitutionInterface
-	 */
-	public function getSubstitution(string $name) {
-		return $this->substitutions[$name] ?? NULL;
+	public function removeMacro($macro) {
+		if(is_string($macro)) {
+			if(isset($this->macros[$macro]))
+				unset($this->macros[$macro]);
+		} elseif(($idx = array_search($macro, $this->macros)) !== false) {
+			unset($this->macros[$idx]);
+		}
+		return $this;
 	}
 
-	/**
-	 * Returns a ready string
-	 *
-	 * @param string $name
-	 * @param $context
-	 * @return string|null
-	 */
-	public function getSubstitutionString(string $name, $context = NULL): ?string
+	protected function shouldRunMacro(MacroInterface $macro, string $name, $context)
 	{
-		$value = $this->getSubstitution($name);
-		if($value instanceof SubstitutionInterface)
-			$value = $value->toString($context);
-		return $value;
+		return true;
+	}
+
+	public function macroString(string $string, $context = NULL): string
+	{
+		/** @var MacroInterface $macro */
+		foreach($this->macros as $name => $macro) {
+			if($this->shouldRunMacro($macro, $name, $context))
+				$string = $macro->macroString($string, $context);
+		}
+		return $string;
+	}
+
+	public function __invoke($string, $context=NULL)
+	{
+		return $this->macroString($string, $context);
 	}
 }
