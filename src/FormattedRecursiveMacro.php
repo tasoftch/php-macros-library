@@ -21,29 +21,17 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Formatter;
+namespace TASoft\Macro;
 
-class CustomFormatter implements FormatterInterface
+use TASoft\Macro\Utility\MacroFormatterContainerTrait;
+
+class FormattedRecursiveMacro extends SimpleRecursiveMacro
 {
-	/** @var string */
-	private $format;
+	use MacroFormatterContainerTrait;
 
-	/**
-	 * @param string $format
-	 */
-	public function __construct(string $format)
+	public function getSubstitutionString(string $name, $context = NULL): ?string
 	{
-		$this->format = $format;
-	}
-
-
-	public function formatValue($value, $context = NULL): ?string
-	{
-		return sprintf($this->getFormat(), $value);
-	}
-
-	public function getFormat(): string
-	{
-		return $this->format;
+		$string = parent::getSubstitutionString($name, $context);
+		return $this->getFormattedValue($string, $name, $context);
 	}
 }
