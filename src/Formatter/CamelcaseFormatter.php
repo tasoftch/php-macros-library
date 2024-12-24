@@ -21,46 +21,15 @@
  * SOFTWARE.
  */
 
-namespace TASoft\Macro\Utility;
+namespace TASoft\Macro\Formatter;
 
-use TASoft\Macro\Formatter\FormatterInterface;
-
-trait MacroFormatterContainerTrait
+class CamelcaseFormatter implements FormatterInterface
 {
-	protected $formatters = [];
-
-	public function setFormatter(FormatterInterface $formatter, $name)
+	public function formatValue($value, $context = NULL): ?string
 	{
-		$this->formatters[$name] = $formatter;
-	}
-
-	public function setFormatters(FormatterInterface $formatter, array $names) {
-		foreach($names as $name)
-			$this->setFormatter($formatter, $name);
-	}
-
-	/**
-	 * Returns the substitution for a name.
-	 *
-	 * @param string $name
-	 * @return FormatterInterface|null
-	 */
-	public function getFormatter(string $name): ?FormatterInterface {
-		return $this->formatters[$name] ?? NULL;
-	}
-
-	/**
-	 * Returns a ready string
-	 *
-	 * @param string $name
-	 * @param $context
-	 * @return string|null
-	 */
-	public function getFormattedValue($value, string $name, $context = NULL): ?string
-	{
-		$fmt = $this->getFormatter($name);
-		if($fmt instanceof FormatterInterface)
-			$value = $fmt->formatValue($value, $context);
-		return $value;
+		$value = preg_replace('/[^a-zA-Z0-9]+/', ' ', $value);
+		$value = ucwords(strtolower($value));
+		$value = str_replace(" ", '', $value);
+		return lcfirst($value);
 	}
 }
