@@ -59,7 +59,7 @@ class AbstractRecursiveMacro extends AbstractMacro
 			}
 		}
 
-		if(str_contains($string, '$(')) {
+		if(strpos($string, '$(') !== false) {
 			$string = $this->_makroStringRecursive($string, $context, $stack);
 		}
 		return $string;

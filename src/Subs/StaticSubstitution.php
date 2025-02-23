@@ -31,17 +31,17 @@ class StaticSubstitution extends AbstractConstantSubstitution implements Substit
 	/**
 	 * @param bool|float|int|string $value
 	 */
-	public function __construct(float|bool|int|string $value = NULL)
+	public function __construct($value = NULL)
 	{
 		$this->value = $value;
 	}
 
-	public function getValue(): float|bool|int|string|null
+	public function getValue()
 	{
 		return $this->value;
 	}
 
-	public function setValue(float|bool|int|string $value): StaticSubstitution
+	public function setValue($value): StaticSubstitution
 	{
 		$this->value = $value;
 		return $this;
